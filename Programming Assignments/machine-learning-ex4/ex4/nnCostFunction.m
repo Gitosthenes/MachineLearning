@@ -61,24 +61,37 @@ Theta2_grad = zeros(size(Theta2));
 %               the regularization separately and then add them to Theta1_grad
 %               and Theta2_grad from Part 2.
 %
+%-------------------------------------------------------------------------------
+% Forewardpropegation:
 
+y_matrix = eye(num_labels)(y,:);
 
+a1 = [ones(m,1),X]; % 5000x401
+z2 = a1*Theta1'; % 5000x25
+a2 = sigmoid(z2); % 5000x25
+a2 = [ones(m,1),a2]; %5000x26
+z3 = a2*Theta2';
+a3 = sigmoid(z3);
 
+J = (1/m)*sum(sum(-y_matrix.*log(a3)-(1-y_matrix).*log(1-a3)));
+reg = (lambda/(2*m))*(sum(sum(Theta1(:,2:end).^2))+sum(sum(Theta2(:,2:end).^2)));
 
+J = J + reg;
 
+% Backpropegation:
 
-
-
-
-
-
-
-
-
-
-
-
-
+d3 = a3 - y_matrix; % 5000x10
+d2 = d3 * Theta2(:,2:end).*sigmoidGradient(z2); % 5000x25
+Delta1 = d2' * a1; % 25x401
+Delta2 = d3' * a2; % 10x26
+Theta1_grad = (1/m)*Delta1;
+Theta2_grad = (1/m)*Delta2;
+Theta1(:,1) = 0;
+Theta2(:,1) = 0;
+D1reg = (lambda/m)*Theta1;
+D2reg = (lambda/m)*Theta2;
+Theta1_grad = Theta1_grad + D1reg;
+Theta2_grad = Theta2_grad + D2reg;
 
 % -------------------------------------------------------------
 
@@ -86,6 +99,5 @@ Theta2_grad = zeros(size(Theta2));
 
 % Unroll gradients
 grad = [Theta1_grad(:) ; Theta2_grad(:)];
-
 
 end
