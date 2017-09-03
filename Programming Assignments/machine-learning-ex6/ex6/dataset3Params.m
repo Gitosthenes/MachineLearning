@@ -23,11 +23,21 @@ sigma = 0.3;
 %        mean(double(predictions ~= yval))
 %
 
-
-
-
-
-
+testVec = [0.01,0.03,0.1,0.3,1,3,10,30];
+results = zeros(64,3);
+counter = 1;
+for i = 1:length(testVec)
+	for j = 1:length(testVec)
+		model = svmTrain(X, y, testVec(i), @(x1,x2) gaussianKernel(x1,x2,testVec(j))); 
+		pred = svmPredict(model, Xval);
+		error = mean(double(pred ~= yval));
+		results(counter,:) = [testVec(i), testVec(j), error];
+		counter = counter + 1;
+	end
+end
+minIndex = find(results(:,3)==min(results(:,3))); 
+C = results(minIndex,1);
+sigma = results(minIndex,2);
 
 % =========================================================================
 
